@@ -1,0 +1,64 @@
+version: '3'
+services:
+  web:
+    build:
+      context: .
+      args:
+        options: --reload
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - rabbit
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db/postgres
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbit//
+      - CELERY_RESULT_BACKEND=rpc://
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+      
+  rabbit:
+    image: rabbitmq:3
+
+  celery:
+    build: .
+    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A app.celery worker --loglevel=DEBUG
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - rabbit
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbit//
+      - CELERY_RESULT_BACKEND=rpc://
+      - DATABASE_URL=postgresql://postgres:password@db/postgres
+  flower:
+      image: mher/flower:0.9.7
+      command: flower --broker=amqp://guest:guest@rabbit//
+      ports:
+        - 5555:5555
+      depends_on:
+        - rabbit
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    volumes:
+      - ./ui:/app
+      # - node_modules:/app/node_modules
+    ports:
+      - '3000:3000'
+
+      
+volumes:
+  postgres_data:
+  # node_modules:

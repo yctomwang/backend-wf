@@ -1,0 +1,9 @@
+venv
+*.db
+yum.conf
+Dockerfile.local
+/.vscode
+init.sql
+__pycache__
+archive/
+db.sqlite3
