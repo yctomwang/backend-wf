@@ -1,4 +1,4 @@
-from datetime import time
+import time
 
 def test_application():
     time.sleep(2)
