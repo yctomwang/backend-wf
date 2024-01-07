@@ -3,7 +3,7 @@ version: '3.8'
 services:
   flask-app:
     build:
-      context: ./backend-wf
+      context: .
       dockerfile: Dockerfile
     image: your-flask-image-name
     ports:
@@ -14,7 +14,7 @@ services:
 
   celery-worker:
     build:
-      context: ./backend-wf
+      context: .
       dockerfile: Dockerfilecelery
     image: your-celery-image-name
     depends_on:
